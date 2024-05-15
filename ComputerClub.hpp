@@ -58,7 +58,7 @@ class ComputerClub {
 
         // обработчики событий
         void clientArrived(std::string, std::pair<int, int>);
-        void clientLeave(std::string, std::pair<int, int>);
+        void clientLeave(std::string, std::pair<int, int>, bool=0);
         void clientSatDown(std::string, std::pair<int, int>, int);
 };
 

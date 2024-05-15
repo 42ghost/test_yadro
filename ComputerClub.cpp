@@ -28,7 +28,7 @@ void ComputerClub::run(std::ifstream &file){
             
             printEvent(time, eventID, name);
 
-            if (eventID == ClientArrived) { // Клиент пришёл
+            if (eventID == ClientArrived) {
                 if (isClosed(time)) {
                     printEvent(time, ClubError, "NotOpenYet");
                 } else if (clientExist(name)){
@@ -69,8 +69,10 @@ void ComputerClub::run(std::ifstream &file){
                 }
             }
         } else {
-            std::cout << s << std::endl;
-            exit(1);
+            if (s != ""){
+                std::cout << s << std::endl;
+                exit(1);
+            }
         }
     }
 }
@@ -85,7 +87,7 @@ void ComputerClub::close(){
     for (auto cl : tmp){
         if (clients[cl].status == ClientWaiting || clients[cl].status == ClientSatDown){
             printEvent(closeTime, ClubLeave, cl);
-            clientLeave(cl, closeTime);
+            clientLeave(cl, closeTime, 1);
         }
     }
     printTime(closeTime, '\n');
@@ -175,7 +177,7 @@ void ComputerClub::clientArrived(std::string name, std::pair<int, int> time){
     waitingQueue.push(name);
 }
 
-void ComputerClub::clientLeave(std::string name, std::pair<int, int> time){
+void ComputerClub::clientLeave(std::string name, std::pair<int, int> time, bool clubIsClosed){
     if (clients[name].status == ClientWaiting) {
         std::queue<std::string> tmp;
         while (!waitingQueue.empty()) {
@@ -187,7 +189,7 @@ void ComputerClub::clientLeave(std::string name, std::pair<int, int> time){
         waitingQueue = std::move(tmp);
     } else if (clients[name].status == ClientSatDown) {
         computers[clients[name].compID].shutdown(time);
-        if (!waitingQueue.empty()){
+        if (!waitingQueue.empty() && !clubIsClosed){
             printEvent(time, ClubSatDown, waitingQueue.front(), clients[name].compID);
             clientSatDown(waitingQueue.front(), time, clients[name].compID);
         } else {

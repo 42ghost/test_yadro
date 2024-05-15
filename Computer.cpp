@@ -63,6 +63,9 @@ void Computer::shutdown(std::pair<int, int> time){
     if (status == Busy) {
         std::pair<int, int> tmp = diffTime(time, startTime);
         payHours += tmp.first + (tmp.second > 0 ? 1 : 0);
+        if (tmp.first == 0 && tmp.second == 0){
+            payHours += 1;
+        }
         busytime = sumTime(busytime, tmp);
     }
 }
