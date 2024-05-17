@@ -10,6 +10,7 @@
 int main(int argc, const char * argv[]){
     if (argc != 2){
         std::cout << "incorrect number of arguments" << std::endl;
+        std::cout << *argv << std::endl;
         exit(1);
     }
 
@@ -21,7 +22,13 @@ int main(int argc, const char * argv[]){
 
     // Чтение количества компьютеров
     if(getline(file, s)){
-        n = std::stoi(s);
+        try {
+            n = std::stoi(s);
+        } catch(const std::exception& e) {
+            std::cout << s << '\n';
+            exit(1);
+        }
+        
         if (n <= 0) {
             std::cout << n << std::endl;
             return 1;
@@ -47,7 +54,12 @@ int main(int argc, const char * argv[]){
     
     // Чтение цены
     if (getline(file, s)){
-        price = std::stoi(s);
+        try {
+            price = std::stoi(s);
+        } catch (std::exception& e) {
+            std::cout << s << '\n';
+            exit(1);
+        }
         if (price <= 0) {
             std::cout << price << std::endl;
             return 1;

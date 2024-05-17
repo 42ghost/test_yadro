@@ -39,8 +39,6 @@ void ComputerClub::run(std::ifstream &file){
             } else if (eventID == ClientWaiting) {
                 if (hasFreeTable()) {
                     printEvent(time, ClubError, "ICanWaitNoLonger!");
-                } else if (!clientExist(name)) { // Не по ТЗ
-                    printEvent(time, ClubError, "ClientUnknown");
                 } else if (waitingQueue.size() > computers.size()) {
                     clientLeave(name, time);    
                 }
