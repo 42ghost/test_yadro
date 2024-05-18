@@ -55,6 +55,11 @@ void ComputerClub::run(std::ifstream &file){
             std::string name = match[4];
             int compID = std::stoi(match[5]);
 
+            if (compID >= computers.size()) {
+                std::cout << s << std::endl;
+                exit(1);
+            }
+
             printEvent(time, eventID, name, compID);
 
             if (eventID == ClientSatDown) { 
