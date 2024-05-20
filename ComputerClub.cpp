@@ -15,10 +15,11 @@ ComputerClub::~ComputerClub() {
 
 void ComputerClub::run(std::ifstream &file){
     printTime(openTime);
-    std::cout << std::endl;
+    //std::cout << std::endl;
+    loglist.push_back("\n");
     std::string s;
-    std::regex pattern134(R"((2[0-3]|[01]?[0-9]):([0-5][0-9]) (1|2|3|4) ([a-z0-9_-]+))");
-    std::regex pattern2(R"((2[0-3]|[01]?[0-9]):([0-5][0-9]) (1|2|3|4) ([a-z0-9_-]+) ([0-9]+))");
+    std::regex pattern134(R"((2[0-3]|[01]?[0-9]):([0-5][0-9]) (1|3|4) ([a-z0-9_-]+))");
+    std::regex pattern2(R"((2[0-3]|[01]?[0-9]):([0-5][0-9]) (2) ([a-z0-9_-]+) ([0-9]+))");
     std::smatch match;
     while (getline(file, s)) {
         if (std::regex_search(s, match, pattern134) && match[0] == s) {
@@ -48,6 +49,8 @@ void ComputerClub::run(std::ifstream &file){
                 } else {
                     clientLeave(name, time);
                 }
+            } else {
+                exit(1);
             }
         } else if (std::regex_search(s, match, pattern2) && match[0] == s) {
             std::pair<int, int> time = {std::stoi(match[1]), std::stoi(match[2])};
@@ -74,8 +77,8 @@ void ComputerClub::run(std::ifstream &file){
         } else {
             if (s != ""){
                 std::cout << s << std::endl;
-                exit(1);
             }
+            exit(1);
         }
     }
 }
@@ -98,10 +101,15 @@ void ComputerClub::close(){
     for (int i = 1; i < computers.size(); ++i) {
         computers[i].shutdown(closeTime);
         
-        std::cout << i << ' ' << computers[i].getProfit(price) << ' ';
+        //std::cout << i << ' ' << computers[i].getProfit(price) << ' ';
+        std::string s = std::to_string(i) + ' ' + std::to_string(computers[i].getProfit(price)) + ' ';
+        loglist.push_back(s);
 
-        printTime(computers[i].getTime(), '\n');
-        
+        printTime(computers[i].getTime(), '\n');    
+    }
+
+    for (auto log : loglist){
+        std::cout << log;
     }
 }
 
@@ -133,25 +141,34 @@ int ComputerClub::compareTime(std::pair<int, int> t1, std::pair<int, int> t2){
 }
 
 void ComputerClub::printTime(std::pair<int, int> time, char lastch){
+    std::string s = "";
     if (time.first <= 9){
-        std::cout << 0;
+        //std::cout << 0;
+        s += "0";
     }
-    std::cout << time.first << ':';
-
+    //std::cout << time.first << ':';
+    s += std::to_string(time.first) + ':';
     if (time.second <= 9){
-        std::cout << 0;
+        //std::cout << 0;
+        s += "0";
     }
-    std::cout << time.second << lastch;
+    //std::cout << time.second << lastch;
+    s += std::to_string(time.second) + lastch;
+    loglist.push_back(s);
 }
 
 void ComputerClub::printEvent(std::pair<int, int> time, int eventID, std::string body, int compID){
     printTime(time, ' ');
-    std::cout << eventID << ' ' << body;
+    //std::cout << eventID << ' ' << body;
+    std::string s = std::to_string(eventID) + ' ' + body; 
     if (compID > 0){
-        std::cout << ' ' << compID << std::endl;
+        //std::cout << ' ' << compID << std::endl;
+        s += ' ' + std::to_string(compID) + '\n';
     } else {
-        std::cout << std::endl;
+        //std::cout << std::endl;
+        s += '\n';
     }
+    loglist.push_back(s);
 }
 
 bool ComputerClub::clientExist(std::string name){
@@ -183,13 +200,18 @@ void ComputerClub::clientArrived(std::string name, std::pair<int, int> time){
 void ComputerClub::clientLeave(std::string name, std::pair<int, int> time, bool clubIsClosed){
     if (clients[name].status == ClientWaiting) {
         std::queue<std::string> tmp;
-        while (!waitingQueue.empty()) {
-            if (waitingQueue.front() != name){
-                tmp.push(waitingQueue.front());
+        if (waitingQueue.front() != name){
+            std::queue<std::string> tmp;
+            while (!waitingQueue.empty()) {
+                    if (waitingQueue.front() != name){
+                        tmp.push(waitingQueue.front());
+                    }
+                    waitingQueue.pop();
             }
+            waitingQueue = std::move(tmp);
+        } else {
             waitingQueue.pop();
         }
-        waitingQueue = std::move(tmp);
     } else if (clients[name].status == ClientSatDown) {
         computers[clients[name].compID].shutdown(time);
         if (!waitingQueue.empty() && !clubIsClosed){

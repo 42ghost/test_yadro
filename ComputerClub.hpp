@@ -37,6 +37,7 @@ class ComputerClub {
         std::pair<int, int> openTime;
         std::pair<int, int> closeTime;
         int price;
+        std::vector<std::string> loglist;
     public:
         ComputerClub();
         ComputerClub(int, int, std::pair<int, int>, std::pair<int, int>);
